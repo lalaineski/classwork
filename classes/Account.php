@@ -11,43 +11,54 @@ class Account extends Database{
 
         public function register( $email, $password ){
             $query = "
-            INSERT INTO account (account_id, email, password, created)
-                VALUES (?,?,?,NOW() ) 
+            INSERT INTO account ( account_id, email, password, created, accessed, updated)
+            VALUES ( UNHEX(?), ?, ?,NOW(), NOW(), NOW()) 
             ";
 
             $register_errors = array();
+            $response = array();
 
             if( strlen($password) < 8 ){
                 $register_errors['password'] = "minimum 8 characters";
             }
 
-            if( filter_var($email, FILTER_VALIDATE-EMAIL ) == false ){
+            if( filter_var($email, FILTER_VALIDATE_EMAIL ) == false ){
                 $register_errors['email'] = "email address not valid!"; 
             }
             //if there are no errors with email and password
             if( count( $register_errors) == 0 ){
                 //hash the password
-                $hash = password_hash ( $password, PASSWORD_DEFAULT );
+                $hash = password_hash( $password, PASSWORD_DEFAULT );
                 $account_id = $this -> createAccountId();
                 
                
                 try{
                     if($statement = $this -> connection -> prepare( $query ) == false){
-                        throw( new Exception('query error') );
+                        throw( new \Exception('query error') );
                     }
                     
-                    $statement -> bind_param('sss', $account_id, $email, $hash );
+                    
 
+                    $statement-> bind_param('sss',$account_id, $email, $hash);
+                    
                     if ( $statement -> execute() == false ){
-                        throw( new Exception('failed to execute') );
+                        throw( new \Exception('failed to execute') );
                     }
                     else{
                         //account is created in database
                         
+                        $response['success'] = true;
+                        
                     }
                 }
+                catch( Exception $exc ){
+                    error_log( $exc -> getMessage() );
+                }
             }
-
+            else{
+                $response['errors'] = $register_errors;
+                $register['success'] = false;
+            }
         }
         private function createAccountId(){
             //get random bytes

@@ -6,6 +6,8 @@ require('vendor/autoload.php');
 //$_SESSION['auth'] = true;
 //session_destroy();
 
+// phpinfo();
+
 use aitsyd\Navigation;
 
 $nav = new Navigation();
