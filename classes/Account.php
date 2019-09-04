@@ -33,8 +33,8 @@ class Account extends Database{
                 
                
                 try{
-                    if($statement = $this -> connection -> prepare( $query ) == false){
-                        throw( new \Exception('query error') );
+                    if( !$statement = $this -> connection -> prepare( $query ) ){
+                        throw( new Exception('query error') );
                     }
                     
                     
@@ -42,7 +42,7 @@ class Account extends Database{
                     $statement-> bind_param('sss',$account_id, $email, $hash);
                     
                     if ( $statement -> execute() == false ){
-                        throw( new \Exception('failed to execute') );
+                        throw( new Exception('failed to execute') );
                     }
                     else{
                         //account is created in database
